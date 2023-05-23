@@ -61,10 +61,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             statisticService.store(correct: correctAnswers, total: questionsAmount)
             
             let text = """
-                    Ваш результат: \(correctAnswers)/\(questionsAmount) \n
-                    Количество сыигранных квизов: \(statisticService.gamesCount) \n
+                    Ваш результат: \(correctAnswers)/\(questionsAmount)
+                    Количество сыигранных квизов: \(statisticService.gamesCount)
                     Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total)
-                    (\(statisticService.bestGame.date.dateTimeString))\n
+                    (\(statisticService.bestGame.date.dateTimeString))
                     Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
                     """
             let viewModel = AlertModel(
