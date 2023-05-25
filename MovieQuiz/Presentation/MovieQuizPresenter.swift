@@ -8,13 +8,38 @@
 import Foundation
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var currentQuestionIndex: Int = 0
     let questionsAmount: Int = 10
     var currentQuestion: QuizQuestion?
+    private var questionFactory: QuestionFactoryProtocol?
     weak var viewController: MovieQuizViewController?
-    var questionFactory: QuestionFactoryProtocol?
     var correctAnswers: Int = 0
+    
+    init(viewController: MovieQuizViewController) {
+        self.viewController = viewController
+        
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory?.loadData()
+        viewController.showLoadingIndicator()
+    }
+    
+    // MARK: - QuestionFactoryDelegate
+    
+    func didLoadDataFromServer() {
+        viewController?.hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        let message = error.localizedDescription
+        viewController?.showNetworkError(message: message)
+    }
+    
+    func didFailToLoadImage(with error: String) {
+        viewController?.showNetworkError(message: error)
+        viewController?.showLoadingIndicator()
+    }
     
     func yesButtonClicked() {
         didAnswer(isYes: true)
@@ -81,6 +106,10 @@ final class MovieQuizPresenter {
             questionFactory?.requestNextQuestion()
         }
     }
-
     
+    func restartGame() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
+    }
 }
