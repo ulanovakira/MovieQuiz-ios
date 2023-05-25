@@ -12,12 +12,16 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var currentQuestionIndex: Int = 0
     let questionsAmount: Int = 10
     var currentQuestion: QuizQuestion?
+    var correctAnswers: Int = 0
+    
     private var questionFactory: QuestionFactoryProtocol?
     weak var viewController: MovieQuizViewController?
-    var correctAnswers: Int = 0
+    private let statisticService: StatisticService!
     
     init(viewController: MovieQuizViewController) {
         self.viewController = viewController
+        
+        statisticService = StatisticServiceImplementation()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
@@ -54,7 +58,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         guard let currentQuestion = currentQuestion else { return }
         
-        viewController?.showAnswerResult(isCorrect: userAnswer == currentQuestion.correctAnswer)
+        self.proceedWithAnswer(isCorrect: userAnswer == currentQuestion.correctAnswer)
+    }
+    
+    private func didAnswer(isCorrect: Bool) {
+        if isCorrect {
+            self.correctAnswers += 1
+        }
     }
     
     func ifLastQuestion() -> Bool {
@@ -90,7 +100,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
         if self.ifLastQuestion() {
             let text = "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз!"
 
@@ -103,13 +113,38 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         } else {
             self.switchToNextQuestion()
             viewController?.showLoadingIndicator()
-            questionFactory?.requestNextQuestion()
+            self.questionFactory?.requestNextQuestion()
         }
+    }
+    
+    func proceedWithAnswer(isCorrect: Bool) {
+        didAnswer(isCorrect: isCorrect)
+        
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
+        }
+    }
+    
+    func makeResultsMessage() -> String {
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+
+        let resultMessage = """
+                Количество сыгранных квизов: \(statisticService.gamesCount)
+                Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total)
+                (\(statisticService.bestGame.date.dateTimeString))
+                Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+                """
+        
+        return resultMessage
     }
     
     func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
+        questionFactory?.loadData()
         questionFactory?.requestNextQuestion()
     }
 }
