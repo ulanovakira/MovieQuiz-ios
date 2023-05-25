@@ -166,8 +166,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         alertPresenter = AlertPresenter()
         statisticService = StatisticServiceImplementation()
-        questionFactory?.loadData()
         showLoadingIndicator()
+        questionFactory?.loadData()
         
     }
     // MARK: - QuestionFactoryDelegate
@@ -178,8 +178,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let questionStep = convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: questionStep)
+            self?.hideLoadingIndicator()
         }
-        hideLoadingIndicator()
     }
 }
 
