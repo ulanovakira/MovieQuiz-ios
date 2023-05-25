@@ -4,6 +4,7 @@ import UIKit
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // массив вопросов
 
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     @IBOutlet private var noButton: UIButton!
     
     @IBOutlet private var yesButton: UIButton!
@@ -40,13 +41,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для экрана вопроса
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let question = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
         return question
     }
-// показ вопроса
+    // показ вопроса
     private func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.question
@@ -85,29 +86,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         } else {
             currentQuestionIndex += 1
             // идём в состояние "Вопрос показан"
-            
+            showLoadingIndicator()
             self.questionFactory?.requestNextQuestion()
         }
     }
-// показ алерта
-//    private func showAlert(quiz result: QuizResultsViewModel) {
-//        let alert = UIAlertController(
-//            title: result.title,
-//            message: result.text,
-//            preferredStyle: .alert)
-//
-//        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-//            guard let self = self else {return}
-//            self.currentQuestionIndex = 0
-//            self.correctAnswers = 0
-//            // заново показываем первый вопрос
-//            questionFactory?.requestNextQuestion()
-//        }
-//
-//        alert.addAction(action)
-//
-//        self.present(alert, animated: true, completion: nil)
-//    }
+    
 //    покраска рамки взависимости от ответа, переход к следующему вопросу
     private func showAnswerResult(isCorrect: Bool) {
         imageView.layer.masksToBounds = true
@@ -134,28 +117,58 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     
     }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    private func showNetworkError(message: String) {
+//        hideLoadingIndicator()
+            
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз",
+                               completion: { [weak self] _    in
+                                            guard let self = self else { return }
+                                            
+                                            self.currentQuestionIndex = 0
+                                            self.correctAnswers = 0
+                                            self.questionFactory?.loadData()
+                                            self.questionFactory?.requestNextQuestion()
+                                        })
+        alertPresenter?.showAlert(from: self, quiz: model)
+//        self.questionFactory?.requestNextQuestion()
+    }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
 
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+        showLoadingIndicator()
+    }
+    func didFailToLoadImage(with error: String) {
+        showNetworkError(message: error)
+        showLoadingIndicator()
+    }
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        questionFactory = QuestionFactory(delegate: self)
-        questionFactory?.requestNextQuestion()
+        imageView.layer.cornerRadius = 20
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         alertPresenter = AlertPresenter()
         statisticService = StatisticServiceImplementation()
-//        print(NSHomeDirectory())
-//        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//        let fileName = "inception.json"
-//        documentsURL.appendPathComponent(fileName)
-//        let jsonString = try? String(contentsOf: documentsURL)
-//        guard let data = jsonString?.data(using: .utf8) else {
-//            return
-//        }
-//        do {
-//            let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-////            print(json)
-//        } catch {
-//            print("Failed to parse: \(jsonString)")
-//        }
+        showLoadingIndicator()
+        questionFactory?.loadData()
+        
     }
     // MARK: - QuestionFactoryDelegate
 
@@ -165,6 +178,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let questionStep = convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: questionStep)
+            self?.hideLoadingIndicator()
         }
     }
 }
