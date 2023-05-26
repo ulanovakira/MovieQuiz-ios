@@ -10,7 +10,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
-    var alertPresenter: AlertPresenter?
+    private var alertPresenter: AlertPresenter?
     private var presenter: MovieQuizPresenter!
     
     // MARK: - Lifecycle
@@ -21,7 +21,6 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         presenter.viewController = self
         imageView.layer.cornerRadius = 20
         alertPresenter = AlertPresenter()
-        showLoadingIndicator()
         
     }
     
@@ -51,7 +50,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
                     title: result.title,
                     message: message,
                     buttonText: result.buttonText,
-        completion: {[weak self] _ in
+        completion: { [weak self] _ in
                         guard let self = self else {return}
                         presenter.resetQuestionIndex()
                         presenter.correctAnswers = 0
