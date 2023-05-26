@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F3420DF2A202A8F00979B78 /* MovieQuizPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3420DE2A202A8F00979B78 /* MovieQuizPresenterTests.swift */; };
 		4F577B602A2005D300044D43 /* MovieQuizPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F577B5F2A2005D300044D43 /* MovieQuizPresenter.swift */; };
 		4F88CDB629D0783E00E155F1 /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4F88CDB429D0783E00E155F1 /* YS Display-Bold.ttf */; };
 		4F88CDB729D0783E00E155F1 /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4F88CDB529D0783E00E155F1 /* YS Display-Medium.ttf */; };
@@ -55,6 +56,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4F3420DE2A202A8F00979B78 /* MovieQuizPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizPresenterTests.swift; sourceTree = "<group>"; };
 		4F577B5F2A2005D300044D43 /* MovieQuizPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizPresenter.swift; sourceTree = "<group>"; };
 		4F88CDB429D0783E00E155F1 /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
 		4F88CDB529D0783E00E155F1 /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 			children = (
 				4FF199D22A1EB937003DA0F6 /* ArrayTests.swift */,
 				4FF199D42A1EBC1F003DA0F6 /* MoviesLoaderTests.swift */,
+				4F3420DE2A202A8F00979B78 /* MovieQuizPresenterTests.swift */,
 			);
 			path = MovieQuizTests;
 			sourceTree = "<group>";
@@ -367,6 +370,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FF199D32A1EB937003DA0F6 /* ArrayTests.swift in Sources */,
+				4F3420DF2A202A8F00979B78 /* MovieQuizPresenterTests.swift in Sources */,
 				4FF199D52A1EBC1F003DA0F6 /* MoviesLoaderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
